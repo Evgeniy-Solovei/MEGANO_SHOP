@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from rest_framework.exceptions import ValidationError
 
@@ -16,6 +17,7 @@ class Profile(models.Model):
         verbose_name = 'Профиль'
         verbose_name_plural = 'Профили'
 
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False)
     fullName = models.CharField(max_length=50, verbose_name='Полное имя')
     email = models.EmailField(max_length=100, verbose_name='Почта')
     phone = models.IntegerField(validators=[validate_phone], blank=True, null=True, verbose_name='Номер телефона')

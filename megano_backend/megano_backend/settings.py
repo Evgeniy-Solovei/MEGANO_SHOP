@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'frontend',
     'rest_framework',
     'catalog.apps.CatalogConfig',
-    'order.apps.OrderConfig',
+    # 'order.apps.OrderConfig',
     'user_profile.apps.UserProfileConfig',
 ]
 
