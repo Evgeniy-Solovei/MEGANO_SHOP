@@ -1,4 +1,3 @@
-
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Avg
@@ -6,12 +5,19 @@ from django.utils import timezone
 from user_profile.models import Profile
 
 
-def category_image_directory_path(instance: 'Category', filename: str) -> str:
-    return f"categories/category_{instance.pk}/image/{filename}"
+class Image(models.Model):
+    """Модель для хранения изображений товара"""
 
+    src = models.ImageField(
+        upload_to="static/products/product_image/",
+        default="static/products/default.png",
+        verbose_name="Ссылка",
+    )
+    alt = models.CharField(max_length=128, verbose_name="Описание")
 
-def product_image_directory_path(instance: 'Product', filename: str) -> str:
-    return f"products/product_{instance.pk}/image/{filename}"
+    class Meta:
+        verbose_name = "Изображение"
+        verbose_name_plural = "Изображения"
 
 
 class Category(models.Model):
@@ -23,8 +29,13 @@ class Category(models.Model):
         ordering = ['title', ]
 
     title = models.CharField(max_length=100, verbose_name='Категория')
-    subcategories = models.ForeignKey(
-        'self', null=True, blank=True, on_delete=models.CASCADE, verbose_name='Категория является подкатегорией от'
+    parent = models.ForeignKey(
+        'self',
+        related_name='subcategories',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        verbose_name='Подкатегории'
     )
     image = models.ImageField(null=True, blank=True, upload_to=category_image_directory_path,
                               verbose_name='Изображение')
@@ -90,21 +101,39 @@ class Product(models.Model):
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
 
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name='category', null=True, blank=True)
     price = models.DecimalField(default=0, max_digits=8, decimal_places=2, verbose_name='Цена')
     count = models.PositiveIntegerField(verbose_name='Количество продукта в наличии')
     data = models.DateTimeField(verbose_name='Дата и время')
     title = models.CharField(max_length=100, verbose_name='Каталог')
     description = models.CharField(max_length=100, verbose_name='Описание')
     freeDelivery = models.BooleanField(default=True, verbose_name='Бесплатная доставка')
-    images = models.ImageField(
-        blank=True, null=True, upload_to=product_image_directory_path, verbose_name='Изображение'
+    image = models.ForeignKey(
+        Image,
+        on_delete=models.SET_NULL,
+        related_name='image',
+        blank=True,
+        null=True,
+        verbose_name='Изображение'
     )
     tags = models.ManyToManyField(Tag, verbose_name='Тег')
-    reviews = models.ForeignKey(Review, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Отзывы')
-    specifications = models.ForeignKey(
-        Specifications, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Характеристики продукта'
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.SET_NULL,
+        related_name='reviews',
+        null=True,
+        blank=True,
+        verbose_name='Отзывы'
     )
+    specification = models.ForeignKey(
+        Specifications,
+        on_delete=models.SET_NULL,
+        related_name='specifications',
+        null=True,
+        blank=True,
+        verbose_name='Характеристики продукта'
+    )
+
     # rating = models.DecimalField(default=0, max_digits=8, decimal_places=1, verbose_name='Рейтинг')
     @property
     def rating(self) -> float:
@@ -119,4 +148,3 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
-

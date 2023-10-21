@@ -1,27 +1,30 @@
 from django.contrib.auth.models import User
 from django.db import models
-from rest_framework.exceptions import ValidationError
 
 
-def validate_phone(value=375298945462):
-    if len(str(value)) < 7:
-        raise ValidationError("Номер телефона должен содержать более 7 цифры.")
+class Avatar(models.Model):
+    """Модель для хранения аватара пользователя"""
 
+    src = models.ImageField(
+        upload_to="static/avatars/user_avatars/",
+        default="static/avatars/default.png",
+        verbose_name="Ссылка",
+    )
+    alt = models.CharField(max_length=128, verbose_name="Описание")
 
-def avatar_image_directory_path(instance: 'Profile', filename: str) -> str:
-    return f"profiles/profile_{instance.pk}/image/{filename}"
+    class Meta:
+        verbose_name = "Аватар"
+        verbose_name_plural = "Аватары"
 
 
 class Profile(models.Model):
-    class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=False)
-    fullName = models.CharField(max_length=50, verbose_name='Полное имя')
-    email = models.EmailField(max_length=100, verbose_name='Почта')
-    phone = models.IntegerField(validators=[validate_phone], blank=True, null=True, verbose_name='Номер телефона')
-    avatar = models.ImageField(
-        null=True, blank=True, upload_to=avatar_image_directory_path, verbose_name='Изображение'
+    """Модель профиля пользователя"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    fullName = models.CharField(max_length=128, verbose_name="Полное имя")
+    phone = models.PositiveIntegerField(blank=True, null=True, unique=True, verbose_name="Номер телефона")
+    balance = models.DecimalField(decimal_places=2, max_digits=10, default=0, verbose_name="Баланс")
+    avatar = models.ForeignKey(
+        Avatar, on_delete=models.CASCADE, related_name="profile", verbose_name="Аватар", null=True, blank=True,
     )
+
 
