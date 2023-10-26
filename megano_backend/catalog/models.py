@@ -37,14 +37,20 @@ class Category(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Подкатегории'
     )
-    image = models.ImageField(null=True, blank=True, upload_to=category_image_directory_path,
-                              verbose_name='Изображение')
+    image = models.ForeignKey(
+        Image,
+        on_delete=models.SET_NULL,
+        related_name='image',
+        blank=True,
+        null=True,
+        verbose_name='Изображение'
+    )
 
     def __str__(self):
         return self.title
 
-    def get_image(self):
-        return {'src': self.image.url, 'alt': self.image.name}
+    # def get_image(self):
+    #     return {'src': self.image.url, 'alt': self.image.name}
 
 
 class Tag(models.Model):
@@ -77,15 +83,15 @@ class Review(models.Model):
     data = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.text.verbose_name
+        return self.text
 
 
 class Specifications(models.Model):
     """Модель Specifications представляет характеристику товара"""
 
     class Meta:
-        verbose_name = 'Продукт'
-        verbose_name_plural = 'Продукты'
+        verbose_name = 'Характеристика товара'
+        verbose_name_plural = 'Характеристики товаров'
 
     name = models.CharField(max_length=100, verbose_name='Имя характеристики')
     value = models.CharField(max_length=200, verbose_name='Значение характеристики')
@@ -105,13 +111,13 @@ class Product(models.Model):
     price = models.DecimalField(default=0, max_digits=8, decimal_places=2, verbose_name='Цена')
     count = models.PositiveIntegerField(verbose_name='Количество продукта в наличии')
     data = models.DateTimeField(verbose_name='Дата и время')
-    title = models.CharField(max_length=100, verbose_name='Каталог')
+    title = models.CharField(max_length=100, verbose_name='Заголовок')
     description = models.CharField(max_length=100, verbose_name='Описание')
     freeDelivery = models.BooleanField(default=True, verbose_name='Бесплатная доставка')
     image = models.ForeignKey(
         Image,
         on_delete=models.SET_NULL,
-        related_name='image',
+        related_name='images',
         blank=True,
         null=True,
         verbose_name='Изображение'
@@ -148,3 +154,24 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Sale(models.Model):
+
+    class Meta:
+        verbose_name = 'Скидка'
+        verbose_name_plural = 'Скидки'
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='sales',
+        verbose_name='Скидка'
+    )
+    salePrice = models.DecimalField(max_digits=8, decimal_places=2, default=0, verbose_name='Цена со скидкой')
+    dateFrom = models.DateTimeField(default='', verbose_name='Дата начала акции')
+    dateTo = models.DateTimeField(null=True, blank=True, verbose_name='Дата окончания акции')
+
+    # def __str__(self):
+    #     return self.product.verbose_name

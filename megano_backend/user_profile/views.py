@@ -1,7 +1,6 @@
 import json
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
-from django.http import JsonResponse
 from rest_framework import status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -57,26 +56,26 @@ class ProfileView(APIView):
     """Класс для получения информации о пользователе (get), редактирования информации о пользователе (post)"""
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request: Request) -> JsonResponse:
+    def get(self, request: Request) -> Response:
         profile = Profile.objects.get(user=request.user)
         serialized = ProfileSerializer(profile)
-        return JsonResponse(serialized.data, safe=False)
+        return Response(serialized.data)
 
-    def post(self, request: Request) -> JsonResponse:
+    def post(self, request: Request) -> Response:
         profile = Profile.objects.get(user=request.user)
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
         else:
-            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePasswordView(APIView):
     """Смена пароля пользователя """
     permission_classes = [IsAuthenticated]
 
-    def post(self, request: Request) -> JsonResponse:
+    def post(self, request: Request) -> Response:
         serializer = PasswordUpdateSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -87,23 +86,23 @@ class UpdatePasswordView(APIView):
             user.set_password = new_password
             user.save()
             update_session_auth_hash(request, user)
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
         else:
-            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateAvatarView(APIView):
     """Смена аватара пользователя"""
     permission_classes = [IsAuthenticated]
 
-    def post(self, request: Request) -> JsonResponse:
+    def post(self, request: Request) -> Response:
         serializer = AvatarUpdateSerializer(data=request.data)
 
         if serializer.is_valid:
             profile_avatar, created = Profile.objects.get_or_create(user=request.user)
             profile_avatar.avatar = serializer.validated_data.get()
             profile_avatar.save()
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
         else:
-            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Profile
+from .models import Profile, Avatar
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -8,3 +8,10 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Profile, ProfileAdmin)
+
+
+class AvatarAdmin(admin.ModelAdmin):
+    list_display = 'src', 'alt'
+
+
+admin.site.register(Avatar, AvatarAdmin)
