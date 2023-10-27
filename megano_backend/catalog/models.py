@@ -144,13 +144,9 @@ class Product(models.Model):
     @property
     def rating(self) -> float:
         """Функция для вычисления среднего рейтинга с использованием .aggregate()"""
-        reviews = Review.objects.filter(product=self)
+        reviews = Review.objects.filter(reviews=self)
         average_rating = reviews.aggregate(average_rating=Avg('rate'))['average_rating']
-
-        if average_rating is not None:
-            return round(average_rating, 2)
-        else:
-            return 0.0
+        return average_rating if average_rating is not None else 0.0
 
     def __str__(self):
         return self.title

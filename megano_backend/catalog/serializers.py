@@ -1,8 +1,20 @@
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from catalog.models import Product, Tag, Category, Review, Sale
+from catalog.models import Product, Tag, Category, Review, Sale, Image
 from rest_framework import serializers
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ('src', 'alt')
+
+    def to_representation(self, instance):
+        return [{
+            'src': instance.src.url,
+            'alt': instance.alt
+        }]
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -11,16 +23,31 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = 'id', 'name'
+        fields = ('id', 'name')
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    images = ImageSerializer(source='image')
+    tags = TagSerializer(many=True)
+    # date = serializers.DateTimeField(format="%a %b %d %Y %H:%M:%S GMT%z (Central European Standard Time)", source='data')
+    # date = serializers.DateTimeField(source='data')
+    # reviews = serializers.PrimaryKeyRelatedField(source='review', read_only=True)
+    rating = serializers.SerializerMethodField()
+    # price = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = Product
+        fields = ('id', 'category', 'price', 'count', 'date', 'title', 'description', 'freeDelivery', 'images', 'tags',
+                  'reviews', 'rating')
+
+    def get_rating(self, obj):
+        return obj.rating
+
+
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
