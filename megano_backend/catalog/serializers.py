@@ -33,8 +33,8 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ImageSerializer(source='image')
     tags = TagSerializer(many=True)
     # date = serializers.DateTimeField(format="%a %b %d %Y %H:%M:%S GMT%z (Central European Standard Time)", source='data')
-    # date = serializers.DateTimeField(source='data')
-    # reviews = serializers.PrimaryKeyRelatedField(source='review', read_only=True)
+    date = serializers.DateTimeField(source='data')
+    reviews = serializers.PrimaryKeyRelatedField(source='review', read_only=True)
     rating = serializers.SerializerMethodField()
     # price = serializers.DecimalField(max_digits=10, decimal_places=2)
 
