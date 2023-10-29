@@ -17,10 +17,21 @@ class ImageSerializer(serializers.ModelSerializer):
         }]
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class SubcategorySerializer(serializers.ModelSerializer):
+    image = ImageSerializer()
+
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = 'id', 'title', 'image'
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    image = ImageSerializer()
+    subcategories = SubcategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = 'id', 'title', 'image', 'subcategories'
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -30,18 +41,16 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ImageSerializer(source='image')
+    images = ImageSerializer([], source='image')
     tags = TagSerializer(many=True)
-    # date = serializers.DateTimeField(format="%a %b %d %Y %H:%M:%S GMT%z (Central European Standard Time)", source='data')
     date = serializers.DateTimeField(source='data')
     reviews = serializers.PrimaryKeyRelatedField(source='review', read_only=True)
     rating = serializers.SerializerMethodField()
-    # price = serializers.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         model = Product
         fields = ('id', 'category', 'price', 'count', 'date', 'title', 'description', 'freeDelivery', 'images', 'tags',
-                  'reviews', 'rating')
+                  'reviews', 'rating', 'available')
 
     def get_rating(self, obj):
         return obj.rating

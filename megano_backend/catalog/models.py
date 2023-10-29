@@ -148,6 +148,8 @@ class Product(models.Model):
         average_rating = reviews.aggregate(average_rating=Avg('rate'))['average_rating']
         return average_rating if average_rating is not None else 0.0
 
+    available = models.BooleanField(default=True, verbose_name='Доступен')
+
     def __str__(self):
         return self.title
 
