@@ -23,7 +23,8 @@ class CategoryListView(ListAPIView):
     """Класс для отображения списка категорий и их подкатегорий"""
     queryset = Category.objects.filter(parent=None).prefetch_related("subcategories")
     serializer_class = CategorySerializer
-    print(serializer_class.data)
+    pagination_class = None
+    # print(serializer_class.data)
 
 
 class TagListView(APIView):
@@ -54,7 +55,7 @@ class CatalogListView(ListAPIView):
                 queryset = queryset.filter(price__lte=max_price)
             free_delivery = self.request.query_params.get("filter[freeDelivery]")
             if free_delivery:
-                queryset = queryset.filter(free_delivery=True)
+                queryset = queryset.filter(freeDelivery=True)
             available = self.request.query_params.get("filter[available]")
             if available:
                 queryset = queryset.filter(available=True)
