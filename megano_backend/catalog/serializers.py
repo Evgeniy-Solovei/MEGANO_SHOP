@@ -53,7 +53,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ImageSerializer([], source='image')
+    images = ImageSerializer(source='image')
     tags = TagSerializer(many=True)
     date = serializers.DateTimeField(source='data')
     reviews = serializers.PrimaryKeyRelatedField(source='review', read_only=True)
@@ -66,9 +66,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         return obj.rating
-
-
-
 
 
 class ReviewSerializer(serializers.ModelSerializer):
