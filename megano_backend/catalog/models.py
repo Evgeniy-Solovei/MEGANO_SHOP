@@ -81,6 +81,7 @@ class Review(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(5)], default=0, verbose_name='Рейтинг'
     )
     data = models.DateTimeField(default=timezone.now)
+    # product = models.ForeignKey(Product)
 
     def __str__(self):
         return self.text

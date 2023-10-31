@@ -36,7 +36,7 @@ class SignUpView(APIView):
         password = user_data.get("password")
         try:
             user = User.objects.create_user(username=username, password=password)
-            profile = Profile.objects.create(user=user, first_name=name)
+            profile = Profile.objects.create(user=user, fullName=name)
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -59,6 +59,7 @@ class ProfileView(APIView):
     def get(self, request: Request) -> Response:
         profile = Profile.objects.get(user=request.user)
         serialized = ProfileSerializer(profile)
+        print(request.data)
         return Response(serialized.data)
 
     def post(self, request: Request) -> Response:
@@ -66,8 +67,10 @@ class ProfileView(APIView):
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            print(request.data)
             return Response(serializer.data)
         else:
+            print(request.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

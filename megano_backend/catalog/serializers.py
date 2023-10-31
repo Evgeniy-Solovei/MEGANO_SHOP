@@ -68,9 +68,17 @@ class ProductSerializer(serializers.ModelSerializer):
         return obj.rating
 
 
+class CustomProductSerializer(ProductSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'category', 'price', 'count', 'date', 'title', 'description', 'freeDelivery', 'images', 'tags',
+                  'reviews', 'rating')
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source='author.fullName', read_only=True)
     email = serializers.EmailField(source='author.email', read_only=True)
+    date = serializers.DateTimeField(source='data')
 
     class Meta:
         model = Review
@@ -78,10 +86,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class SaleSerializer(serializers.ModelSerializer):
-    id = serializers.ImageField(source='sales.id', read_only=True)
-    price = serializers.DecimalField(source='sales.price', decimal_places=2, max_digits=8, read_only=True)
-    title = serializers.CharField(source='sales.title', read_only=True)
-    images = serializers.ImageField(source='sales.image.images', read_only=True)
+    id = serializers.IntegerField(source='product.pk', read_only=True)
+    price = serializers.DecimalField(source='product.price', decimal_places=2, max_digits=8, read_only=True)
+    title = serializers.CharField(source='product.title', read_only=True)
+    images = ImageSerializer(source='product.image', read_only=True)
 
     class Meta:
         model = Sale
