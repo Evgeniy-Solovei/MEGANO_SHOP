@@ -14,6 +14,7 @@ frontend/tests.py
 frontend/urls.py
 frontend/views.py
 frontend/migrations/__init__.py
+frontend/static/.DS_Store
 frontend/static/frontend/favicon.ico
 frontend/static/frontend/assets/css/basic.css
 frontend/static/frontend/assets/css/extra.css
