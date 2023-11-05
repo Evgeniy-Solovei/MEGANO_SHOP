@@ -53,54 +53,6 @@ class Category(models.Model):
     #     return {'src': self.image.url, 'alt': self.image.name}
 
 
-class Tag(models.Model):
-    """Модель Tag представляет создание тегов для товаров"""
-
-    class Meta:
-        verbose_name = 'Тег'
-        verbose_name_plural = 'Теги'
-
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
-class Review(models.Model):
-    """Модель Review предоставляет возможность создавать отзывы о товаров"""
-
-    class Meta:
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
-
-    author = models.ForeignKey(
-        Profile, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Имя пользователя'
-    )
-    text = models.TextField(verbose_name='Отзыв')
-    rate = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0, verbose_name='Рейтинг'
-    )
-    data = models.DateTimeField(default=timezone.now)
-    # product = models.ForeignKey(Product)
-
-    def __str__(self):
-        return self.text
-
-
-class Specifications(models.Model):
-    """Модель Specifications представляет характеристику товара"""
-
-    class Meta:
-        verbose_name = 'Характеристика товара'
-        verbose_name_plural = 'Характеристики товаров'
-
-    name = models.CharField(max_length=100, verbose_name='Имя характеристики')
-    value = models.CharField(max_length=200, verbose_name='Значение характеристики')
-
-    def __str__(self):
-        return self.name
-
-
 class Product(models.Model):
     """Модель Product представляет товар, который можно продавать в интернет-магазине."""
 
@@ -123,29 +75,12 @@ class Product(models.Model):
         null=True,
         verbose_name='Изображение'
     )
-    tags = models.ManyToManyField(Tag, verbose_name='Тег')
-    review = models.ForeignKey(
-        Review,
-        on_delete=models.SET_NULL,
-        related_name='reviews',
-        null=True,
-        blank=True,
-        verbose_name='Отзывы'
-    )
-    specification = models.ForeignKey(
-        Specifications,
-        on_delete=models.SET_NULL,
-        related_name='specifications',
-        null=True,
-        blank=True,
-        verbose_name='Характеристики продукта'
-    )
 
     # rating = models.DecimalField(default=0, max_digits=8, decimal_places=1, verbose_name='Рейтинг')
     @property
     def rating(self) -> float:
         """Функция для вычисления среднего рейтинга с использованием .aggregate()"""
-        reviews = Review.objects.filter(reviews=self)
+        reviews = Review.objects.filter(product=self)
         average_rating = reviews.aggregate(average_rating=Avg('rate'))['average_rating']
         return average_rating if average_rating is not None else 0.0
 
@@ -153,6 +88,60 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Review(models.Model):
+    """Модель Review предоставляет возможность создавать отзывы о товаров"""
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+    author = models.ForeignKey(
+        Profile, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Имя пользователя'
+    )
+    text = models.TextField(verbose_name='Отзыв')
+    rate = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)], default=0, verbose_name='Рейтинг'
+    )
+    data = models.DateTimeField(default=timezone.now)
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, default=None, related_name='reviews', verbose_name='Продукт'
+    )
+
+    def __str__(self):
+        return self.text
+
+
+class Specifications(models.Model):
+    """Модель Specifications представляет характеристику товара"""
+
+    class Meta:
+        verbose_name = 'Характеристика товара'
+        verbose_name_plural = 'Характеристики товаров'
+
+    name = models.CharField(max_length=100, verbose_name='Имя характеристики')
+    value = models.CharField(max_length=200, verbose_name='Значение характеристики')
+    product = models.ForeignKey(
+        Product, on_delete=models.SET_NULL, null=True, default=None, related_name='specifications', verbose_name='Продукт'
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    """Модель Tag представляет создание тегов для товаров"""
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    name = models.CharField(max_length=50)
+    product = models.ManyToManyField(Product, related_name='tags', verbose_name='Продукт')
+
+    def __str__(self):
+        return self.name
 
 
 class Sale(models.Model):

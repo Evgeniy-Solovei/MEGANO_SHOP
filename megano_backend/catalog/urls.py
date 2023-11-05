@@ -8,24 +8,18 @@ from .views import (
     ProductPopularListView,
     BannerProductList,
     SaleProductList,
-    banners,
-    basket,
-    productsPopular,
-    productsLimited
+    ProductReviewsView,
+
 )
 
 urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='categories'),
     path('tags/', TagListView.as_view(), name='tags'),
     path('catalog/', CatalogListView.as_view(), name='catalog'),
-    #path('products/popular/', ProductPopularListView.as_view(), name='products_popular'),
-    #path('products/limited/', ProductLimitedListView.as_view(), name='products_limited'),
+    path('products/popular/', ProductPopularListView.as_view(), name='products_popular'),
+    path('products/limited/', ProductLimitedListView.as_view(), name='products_limited'),
     path('sales/', SaleProductList.as_view(), name='sale'),
-    #path('banners/', BannerProductList.as_view(), name='banner'),
-    path('product/<int:pk>/review/', ProductDetailsView.as_view(), name='product_reviews'),
+    path('banners/', BannerProductList.as_view(), name='banner'),
     path('product/<int:pk>/', ProductDetailsView.as_view(), name='product_details'),
-    path('banners/', banners),
-    path('basket/', basket),
-    path('products/popular', productsPopular),
-    path('products/limited', productsLimited),
+    path('product/<int:pk>/review/', ProductReviewsView.as_view(), name='product_reviews'),
 ]

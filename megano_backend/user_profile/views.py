@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from rest_framework import status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -52,6 +53,24 @@ class SignOutView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+# class ProfileView(APIView):
+#     def get(self, request: Request) -> Response:
+#         user = request.user.pk  # получаем user_id
+#         profile = Profile.objects.get(user_id=user)  # выбираем конкретный авторизованный профиль
+#         serialized = ProfileSerializer(profile, many=False)  # сериализуем
+#         return Response(serialized.data)
+#
+#     def post(self, request: Request) -> Response:
+#         data = request.data  # получаем данныe из запроса
+#         user = request.user.pk  # получаем id  авторизованного пользователя
+#         profile = Profile.objects.get(user_id=user)  # получаем авторизованного пользователя
+#         serialized = ProfileSerializer(profile, many=False)
+#         profile.fullName = data['fullName']  # обновляем все поля профиля из данных, введённых в форму
+#         profile.phone = data['phone']
+#         profile.email = data['email']
+#         profile.save()  # сохраняем экземпляр в  базу данных
+#         return Response(serialized.data)
+
 class ProfileView(APIView):
     """Класс для получения информации о пользователе (get), редактирования информации о пользователе (post)"""
     permission_classes = [permissions.IsAuthenticated]
@@ -59,7 +78,6 @@ class ProfileView(APIView):
     def get(self, request: Request) -> Response:
         profile = Profile.objects.get(user=request.user)
         serialized = ProfileSerializer(profile)
-        print(request.data)
         return Response(serialized.data)
 
     def post(self, request: Request) -> Response:
@@ -67,10 +85,8 @@ class ProfileView(APIView):
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            print(request.data)
             return Response(serializer.data)
         else:
-            print(request.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -52,11 +52,21 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.CharField(source='author.fullName', read_only=True)
+    email = serializers.EmailField(source='author.email', read_only=True)
+    date = serializers.DateTimeField(source='data')
+
+    class Meta:
+        model = Review
+        fields = 'author', 'email', 'text', 'rate', 'date'
+
+
 class ProductSerializer(serializers.ModelSerializer):
     images = ImageSerializer(source='image')
     tags = TagSerializer(many=True)
     date = serializers.DateTimeField(source='data')
-    reviews = serializers.PrimaryKeyRelatedField(source='review', read_only=True)
+    reviews = ReviewSerializer(many=True)
     rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -73,16 +83,6 @@ class CustomProductSerializer(ProductSerializer):
         model = Product
         fields = ('id', 'category', 'price', 'count', 'date', 'title', 'description', 'freeDelivery', 'images', 'tags',
                   'reviews', 'rating')
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    author = serializers.CharField(source='author.fullName', read_only=True)
-    email = serializers.EmailField(source='author.email', read_only=True)
-    date = serializers.DateTimeField(source='data')
-
-    class Meta:
-        model = Review
-        fields = 'author', 'email', 'text', 'rate', 'date'
 
 
 class SaleSerializer(serializers.ModelSerializer):

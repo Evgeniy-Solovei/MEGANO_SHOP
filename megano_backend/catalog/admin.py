@@ -47,8 +47,6 @@ class ProductAdmin(admin.ModelAdmin):
                     'description',
                     'freeDelivery',
                     'image',
-                    'review',
-                    'specification'
                     )
 
 
