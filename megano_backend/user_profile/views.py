@@ -115,13 +115,13 @@ class UpdateAvatarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
-        serializer = AvatarUpdateSerializer(data=request.data)
+        avatar_img = request.FILES["avatar"]
 
-        if serializer.is_valid:
+        if avatar_img:
             profile_avatar, created = Profile.objects.get_or_create(user=request.user)
-            profile_avatar.avatar = serializer.validated_data.get()
+            profile_avatar.src = avatar_img
             profile_avatar.save()
-            return Response(serializer.data)
+            return Response({"detail": "Аватар успешно обновлен"}, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Файл аватара не найден"}, status=status.HTTP_400_BAD_REQUEST)
 

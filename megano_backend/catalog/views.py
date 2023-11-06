@@ -130,16 +130,17 @@ class ProductReviewsView(ListAPIView):
     serializer_class = ReviewSerializer
     pagination_class = None
 
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        queryset = Review.objects.filter(product__id=pk)
+        return queryset
+
     def post(self, request: Request, pk: int) -> Response:
         try:
             product = Product.objects.get(pk=pk)
-            request.data['product'] = product.id
-            request.data['author'] = request.user.profile.full_name
-            request.data['email'] = request.user.profile.email
-            request.data['data'] = timezone.now()
             serializer = ReviewSerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(product=product)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

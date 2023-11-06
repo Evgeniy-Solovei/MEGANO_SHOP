@@ -14,11 +14,11 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    avatar = AvatarSerializer()
+    # avatar = AvatarSerializer()
 
     class Meta:
         model = Profile
-        fields = 'fullName', 'email', 'phone', 'avatar'
+        fields = 'fullName', 'email', 'phone'
 
 
 class PasswordUpdateSerializer(serializers.Serializer):

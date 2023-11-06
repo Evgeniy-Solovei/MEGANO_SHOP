@@ -55,7 +55,7 @@ class TagSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source='author.fullName', read_only=True)
     email = serializers.EmailField(source='author.email', read_only=True)
-    date = serializers.DateTimeField(source='data')
+    date = serializers.DateTimeField(source='data', required=False)
 
     class Meta:
         model = Review
