@@ -14,7 +14,14 @@ class AvatarSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # avatar = AvatarSerializer()
+    avatar = AvatarSerializer()
+
+    class Meta:
+        model = Profile
+        fields = 'fullName', 'email', 'phone', 'avatar'
+
+
+class CustomProfileSerializer(ProfileSerializer):
 
     class Meta:
         model = Profile
