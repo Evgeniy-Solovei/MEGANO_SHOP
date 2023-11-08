@@ -14,6 +14,7 @@ frontend/tests.py
 frontend/urls.py
 frontend/views.py
 frontend/migrations/__init__.py
+frontend/static/.DS_Store
 frontend/static/frontend/favicon.ico
 frontend/static/frontend/assets/css/basic.css
 frontend/static/frontend/assets/css/extra.css
@@ -178,7 +179,6 @@ frontend/static/frontend/assets/js/sales.js
 frontend/static/frontend/assets/js/scripts.js
 frontend/static/frontend/assets/js/signIn.js
 frontend/static/frontend/assets/js/signUp.js
-frontend/static/frontend/assets/js/userAccount.js
 frontend/static/frontend/assets/plg/vue.global.js
 frontend/static/frontend/assets/plg/CountDown/countdown.js
 frontend/static/frontend/assets/plg/CountDown/jquery.countdown.js
@@ -290,7 +290,6 @@ frontend/static/frontend/stylus/stylus/stylus-mixins/units/ratio.styl
 frontend/static/frontend/stylus/stylus/stylus-mixins/units/rem.styl
 frontend/static/frontend/stylus/stylus/stylus-mixins/units/tracking.styl
 frontend/templates/frontend/about.html
-frontend/templates/frontend/account.html
 frontend/templates/frontend/base.html
 frontend/templates/frontend/cart.html
 frontend/templates/frontend/catalog.html
