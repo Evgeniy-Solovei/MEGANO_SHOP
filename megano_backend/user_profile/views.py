@@ -8,8 +8,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from user_profile.models import Profile
-from user_profile.serializers import ProfileSerializer, PasswordUpdateSerializer, AvatarUpdateSerializer, \
-    CustomProfileSerializer
+from user_profile.serializers import (PasswordUpdateSerializer, AvatarUpdateSerializer, ProfileSerializerRead,
+                                      ProfileSerializerWrite)
 
 
 class SignInView(APIView):
@@ -78,12 +78,12 @@ class ProfileView(APIView):
 
     def get(self, request: Request) -> Response:
         profile = Profile.objects.get(user=request.user)
-        serialized = ProfileSerializer(profile)
+        serialized = ProfileSerializerRead(profile)
         return Response(serialized.data)
 
     def post(self, request: Request) -> Response:
         profile = Profile.objects.get(user=request.user)
-        serializer = CustomProfileSerializer(profile, data=request.data, partial=True)
+        serializer = ProfileSerializerWrite(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
