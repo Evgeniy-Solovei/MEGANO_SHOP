@@ -4,62 +4,64 @@ from catalog.models import Product
 
 
 class Cart(object):
+    """Объект корзины в сессии"""
+
     def __init__(self, request):
-        """Инициализировать корзину."""
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
-            # сохранить пустую корзину в сеансе
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
 
-    def add(self, product, quantity=1, override_quantity=False):
-        """Добавить товар в корзину либо обновить его количество."""
-        product_id = str(product.id)
-        if product_id not in self.cart:
-            self.cart[product_id] = {'quantity': 0,
-                                     'price': str(product.price)}
-        if quantity is not None:
-            if override_quantity:
-                self.cart[product_id]['quantity'] = quantity
-            else:
-                self.cart[product_id]['quantity'] += quantity
-        self.save()
-
-    def save(self):
-        # пометить сеанс как "измененный", чтобы обеспечить его сохранение
-        self.session.modified = True
-
-    def remove(self, product, count=1):
-        """ Удалить товар из корзины или уменьшение количества товара."""
-        product_id = str(product.id)
-        if product_id in self.cart:
-            del self.cart[product_id]
-            self.save()
-
     def __iter__(self):
-        """Прокрутить товарные позиции корзины в цикле и получить товары из базы данных."""
         product_ids = self.cart.keys()
-        # получить объекты product и добавить их в корзину
         products = Product.objects.filter(id__in=product_ids)
         cart = self.cart.copy()
+
         for product in products:
-            cart[str(product.id)]['product'] = product
-        for item in cart.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
+            product_id = str(product.id)
+            cart[product_id]["product_id"] = product_id
+            cart[product_id]["price"] = float(product.price)
+            cart[product_id]["total_price"] = (
+                cart[product_id]["price"] * cart[product_id]["quantity"]
+            )
+
+        sorted_cart = sorted(cart.values(), key=lambda item: item["product_id"])
+
+        for item in sorted_cart:
             yield item
 
     def __len__(self):
-        """Подсчитать все товарные позиции в корзине."""
-        return sum(item['quantity'] for item in self.cart.values())
+        return sum(item["quantity"] for item in self.cart.values())
+
+    def add(self, product, quantity=1, override_quantity=False):
+        product_id = str(product.id)
+        if product_id not in self.cart:
+            self.cart[product_id] = {"quantity": 0, "price": float(product.price)}
+        if override_quantity:
+            self.cart[product_id]["quantity"] = quantity
+        else:
+            self.cart[product_id]["quantity"] += quantity
+        self.save()
+
+    def remove(self, product, quantity=1):
+        product_id = str(product.id)
+        if product_id in self.cart:
+            if quantity >= self.cart[product_id]["quantity"]:
+                del self.cart[product_id]
+            else:
+                self.cart[product_id]["quantity"] -= quantity
+            self.save()
 
     def get_total_price(self):
-        """Рассчитывает общую стоимость товаров в корзине"""
-        return sum(Decimal(item['price']) * item['quantity']
-                   for item in self.cart.values())
+        return sum(
+            float(item["price"]) * item["quantity"] for item in self.cart.values()
+        )
 
     def clear(self):
-        # удалить корзину из сеанса
         del self.session[settings.CART_SESSION_ID]
         self.save()
+
+    def save(self):
+        self.session[settings.CART_SESSION_ID] = self.cart
+        self.session.modified = True
