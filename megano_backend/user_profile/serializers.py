@@ -13,7 +13,7 @@ class AvatarSerializer(serializers.ModelSerializer):
         return obj.src.url
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializerRead(serializers.ModelSerializer):
     avatar = AvatarSerializer()
 
     class Meta:
@@ -21,7 +21,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = 'fullName', 'email', 'phone', 'avatar'
 
 
-class CustomProfileSerializer(ProfileSerializer):
+class ProfileSerializerWrite(ProfileSerializerRead):
 
     class Meta:
         model = Profile

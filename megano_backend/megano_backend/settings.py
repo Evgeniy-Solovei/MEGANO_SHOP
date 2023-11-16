@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-21a3nz%b+@3^n&6+^g1q-!n-e2n_!qr8nbyg#ol$=a)m4#!(@e
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+CART_SESSION_ID = 'basket'
 
 # Application definition
 
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'frontend',
     'rest_framework',
     'catalog.apps.CatalogConfig',
-    # 'order.apps.OrderConfig',
+    'basket.apps.BasketConfig',
     'user_profile.apps.UserProfileConfig',
 ]
 
