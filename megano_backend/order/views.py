@@ -45,34 +45,7 @@ class OrdersView(APIView):
         else:
             data = request.data
 
-        serializer = OrderSerializer(data={
-            "products": [
-                {
-                    "id": 123,
-                    "category": 55,
-                    "price": 500.67,
-                    "count": 12,
-                    "date": "Thu Feb 09 2023 21:39:52 GMT+0100 (Central European Standard Time)",
-                    "title": "video card",
-                    "description": "description of the product",
-                    "freeDelivery": True,
-                    "images": [
-                        {
-                            "src": "/3.png",
-                            "alt": "Image alt string"
-                        }
-                    ],
-                    "tags": [
-                        {
-                            "id": 12,
-                            "name": "Gaming"
-                        }
-                    ],
-                    "reviews": 5,
-                    "rating": 4.6
-                }
-            ]
-        })
+        serializer = OrderSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
@@ -97,6 +70,7 @@ class OrdersView(APIView):
     #     cart.clear()
     #     serialized = OrderSerializer(a)
     #     return Response(serialized.data)
+
 
 
 class OrderDetailsView(APIView):
