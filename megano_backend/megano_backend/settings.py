@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'catalog.apps.CatalogConfig',
     'basket.apps.BasketConfig',
     'user_profile.apps.UserProfileConfig',
+    'order.apps.OrderConfig',
 ]
 
 MIDDLEWARE = [
