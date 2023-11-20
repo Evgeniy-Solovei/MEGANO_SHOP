@@ -13,64 +13,21 @@ class OrdersView(APIView):
     """Класс Заказы: для просмотра заказов (get), добавление заказа (post)"""
 
     def get(self, request: Request) -> Response:
-        order = Order.objects.all()
-        serialized = OrderSerializer(order, many=True)
+        orders = Order.objects.filter(profile=request.user.profile).order_by('-createdAt')
+        serialized = OrderSerializer(orders, many=True)
         return Response(serialized.data)
 
-    # def post(self, request, *args, **kwargs):
-    #     cart = Cart(request)
-    #
-    #     data = {
-    #         'deliveryType': request.data.get('deliveryType'),
-    #         'paymentType': request.data.get('paymentType'),
-    #         'status': request.data.get('status'),
-    #         'city': request.data.get('city'),
-    #         'address': request.data.get('address'),
-    #         # Добавьте другие поля заказа, если необходимо
-    #     }
-    #
-    #     serializer = OrderSerializer(data=data)
-    #
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         cart.clear()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request) -> Response:
         cart = Cart(request)
-
-        # Проверка, является ли request.data списком
-        if isinstance(request.data, list):
-            data = request.data[0]  # Возьмите первый элемент из списка
-        else:
-            data = request.data
-
-        serializer = OrderSerializer(data=data)
-
-        if serializer.is_valid():
-            serializer.save()
-            cart.clear()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # def post(self, request: Request) -> Response:
-    #     cart = Cart(request)
-    #     for a in cart:
-    #         Order.objects.create(
-    #                                  createdAt=a.createdAt,
-    #                                  profile=request.data.get('profile'),
-    #                                  deliveryType=request.data.get('deliveryType'),
-    #                                  paymentType=request.data.get('paymentType'),
-    #                                  status=request.data.get('status'),
-    #                                  address=request.data.get('address'))
-    #     for product in cart:
-    #         OrderItem.objects.create(order=request.order,
-    #                                  product=product.product,
-    #                                  price=product.price,
-    #                                  quantity=product.quantity)
-    #     cart.clear()
-    #     serialized = OrderSerializer(a)
-    #     return Response(serialized.data)
-
+        order = Order.objects.create(profile=request.user.profile)
+        for item in cart:
+            OrderItem.objects.create(order=order,
+                                     product=item['product_id'],
+                                     price=item['price'],
+                                     quantity=item['quantity']
+                                     )
+        cart.clear()
+        return Response({' orderId': order.pk}, status=200)
 
 
 class OrderDetailsView(APIView):
@@ -81,4 +38,45 @@ class OrderDetailsView(APIView):
         serialized = OrderSerializer(order)
         return Response(serialized.data)
 
-    ...
+    def post(self, request: Request, pk: int) -> Response:
+        order = Order.objects.get(pk=pk)
+        order.profile.firstName = request.data['profile']['firstName']
+        order.profile.email = request.data['profile']['email']
+        order.profile.phone = request.data['profile']['phone']
+        order.deliveryType = request.data['deliveryType']
+        order.paymentType = request.data['paymentType']
+        order.status = request.data['status']
+        order.city = request.data['city']
+        order.address = request.data['address']
+        order.save()
+        serialized = OrderSerializer(order)
+        return Response(serialized.data)
+
+
+class PaymentOrderView(APIView):
+    """Класс оплаты заказа"""
+    def post(self, request: Request, pk: int) -> Response:
+        order = Order.objects.get(pk=pk)
+        number = request.data.get('number')
+        name = request.data.get('name')
+        month = request.data.get('month')
+        year = request.data.get('year')
+        code = request.data.get('code')
+        if order.paymentType == 'online':
+            if number.isdigit() and len(number) <= 8:
+                if int(number) % 2 == 0 and int(number[-1]) != 0:
+                    return Response({'number': number, 'name': name, 'month': month, 'year': year, 'code': code},
+                                    status=200)
+                else:
+                    return Response(status=400)
+            else:
+                return Response(status=400)
+        else:
+            if number.isdigit() and len(number) <= 8:
+                if int(number) % 2 == 0 and int(number[-1]) != 0:
+                    return Response({'number': number, 'name': name, 'month': month, 'year': year, 'code': code},
+                                    status=200)
+                else:
+                    return Response(status=400)
+            else:
+                return Response(status=400)

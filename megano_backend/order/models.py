@@ -39,3 +39,14 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return str(self.id)
+
+
+# class Payment(models.Model):
+#     """Модель отплаты заказа"""
+#     order = models.ForeignKey(Order, on_delete=models.SET_NULL, verbose_name="Оплата", related_name='payment_orders')
+#     number = models.CharField(max_length=8)
+#     name = models.CharField(max_length=50)
+#     month = models.CharField(max_length=2)
+#     year = models.CharField(max_length=4)
+#     code = models.CharField(max_length=3)
+
