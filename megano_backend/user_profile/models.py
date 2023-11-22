@@ -21,15 +21,20 @@ class Profile(models.Model):
     """Модель профиля пользователя"""
 
     class Meta:
-        verbose_name = 'Профиль'
-        verbose_name_plural = 'Профили'
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     fullName = models.CharField(max_length=128, verbose_name="Полное имя")
     email = models.EmailField(max_length=255, unique=True, verbose_name="Почта")
-    phone = models.PositiveIntegerField(blank=True, null=True, unique=True, verbose_name="Номер телефона")
-    avatar = models.ForeignKey(
-        Avatar, on_delete=models.CASCADE, related_name="profile", verbose_name="Аватар", null=True, blank=True,
+    phone = models.PositiveIntegerField(
+        blank=True, null=True, unique=True, verbose_name="Номер телефона"
     )
-
-
+    avatar = models.ForeignKey(
+        Avatar,
+        on_delete=models.CASCADE,
+        related_name="profile",
+        verbose_name="Аватар",
+        null=True,
+        blank=True,
+    )

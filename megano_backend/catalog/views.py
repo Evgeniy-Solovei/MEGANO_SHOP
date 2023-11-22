@@ -1,24 +1,26 @@
 from django.db.models import Count, F
 from django.http import JsonResponse
-from django.http import JsonResponse
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.request import Request
 
 from user_profile.models import Profile
-from .models import Category, Tag, Product, Sale, Review
+
+from .models import Category, Product, Review, Sale, Tag
 from .pagination import CatalogPagination
-from .serializers import ProductSerializer, TagSerializer, CategorySerializer, ReviewSerializer, SaleSerializer, \
-    CustomProductSerializer
+from .serializers import (CategorySerializer, CustomProductSerializer,
+                          ProductSerializer, ReviewSerializer, SaleSerializer,
+                          TagSerializer)
 
 
 class CategoryListView(ListAPIView):
     """Класс для отображения списка категорий и их подкатегорий"""
+
     queryset = Category.objects.filter(parent=None).prefetch_related("subcategories")
     serializer_class = CategorySerializer
     pagination_class = None
@@ -35,6 +37,7 @@ class TagListView(APIView):
 
 class CatalogListView(ListAPIView):
     """Класс для отображения всех товаров в интернет магазине"""
+
     serializer_class = ProductSerializer
     pagination_class = CatalogPagination
 
@@ -62,17 +65,23 @@ class CatalogListView(ListAPIView):
                 queryset = queryset.order_by("-rating")
             elif order_by == "price":
                 # Сортировка по цене
-                sort_type = self.request.query_params.get("sortType", "dec")  # По умолчанию сортируем по убыванию
+                sort_type = self.request.query_params.get(
+                    "sortType", "dec"
+                )  # По умолчанию сортируем по убыванию
                 if sort_type == "inc":
                     queryset = queryset.order_by("price")
                 else:
                     queryset = queryset.order_by("-price")
             elif order_by == "reviews":
                 # Сортировка по количеству отзывов
-                queryset = queryset.annotate(num_reviews=Count('reviews')).order_by("-num_reviews")
+                queryset = queryset.annotate(num_reviews=Count("reviews")).order_by(
+                    "-num_reviews"
+                )
             elif order_by == "date":
                 # Сортировка по дате
-                sort_type = self.request.query_params.get("sortType", "dec")  # По умолчанию сортируем по убыванию
+                sort_type = self.request.query_params.get(
+                    "sortType", "dec"
+                )  # По умолчанию сортируем по убыванию
                 if sort_type == "inc":
                     queryset = queryset.order_by("data")
                 else:
@@ -83,35 +92,41 @@ class CatalogListView(ListAPIView):
 
 class ProductPopularListView(ListAPIView):
     """Модель для вывода популярных товаров"""
-    queryset = Product.objects.annotate(count_reviews=Count('reviews')).order_by('-count_reviews')[:5]
+
+    queryset = Product.objects.annotate(count_reviews=Count("reviews")).order_by(
+        "-count_reviews"
+    )[:5]
     serializer_class = CustomProductSerializer
     pagination_class = None
 
 
 class ProductLimitedListView(ListAPIView):
     """Модель для вывода лимитированных товаров"""
-    queryset = Product.objects.all().order_by('-count')[:5]
+
+    queryset = Product.objects.all().order_by("-count")[:5]
     serializer_class = CustomProductSerializer
     pagination_class = None
 
 
 class SaleProductList(ListAPIView):
     """Модель для вывода акционных товаров"""
+
     serializer_class = SaleSerializer
     pagination_class = CatalogPagination
 
     def get_queryset(self) -> Response:
         queryset = Sale.objects.filter(product__isnull=False).annotate(
-            price=F('product__price'),
-            title=F('product__title'),
-            images=F('product__image'),
+            price=F("product__price"),
+            title=F("product__title"),
+            images=F("product__image"),
         )
         return queryset
 
 
 class BannerProductList(ListAPIView):
     """Модель для вывода баннера на сайте"""
-    queryset = Product.objects.all().order_by('?')[:5]
+
+    queryset = Product.objects.all().order_by("?")[:5]
     serializer_class = ProductSerializer
     pagination_class = None
 
@@ -131,7 +146,7 @@ class ProductReviewsView(ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        pk = self.kwargs.get('pk')
+        pk = self.kwargs.get("pk")
         queryset = Review.objects.filter(product__id=pk)
         return queryset
 
@@ -145,4 +160,6 @@ class ProductReviewsView(ListAPIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Product.DoesNotExist:
-            return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND
+            )

@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('user_profile', '0002_remove_profile_balance_profile_email'),
+        ("user_profile", "0002_remove_profile_balance_profile_email"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='profile',
-            options={'verbose_name': 'Профиль', 'verbose_name_plural': 'Профили'},
+            name="profile",
+            options={"verbose_name": "Профиль", "verbose_name_plural": "Профили"},
         ),
     ]

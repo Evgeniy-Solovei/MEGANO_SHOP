@@ -1,19 +1,25 @@
 import json
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+
+from django.contrib.auth import (authenticate, login, logout,
+                                 update_session_auth_hash)
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from rest_framework import status, permissions
+from rest_framework import permissions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from user_profile.models import Profile
-from user_profile.serializers import (PasswordUpdateSerializer, AvatarUpdateSerializer, ProfileSerializerRead,
+from user_profile.serializers import (AvatarUpdateSerializer,
+                                      PasswordUpdateSerializer,
+                                      ProfileSerializerRead,
                                       ProfileSerializerWrite)
 
 
 class SignInView(APIView):
     """Класс для входа пользователей"""
+
     def post(self, request: Request) -> Response:
         user_data = json.loads(request.body)
         username = user_data.get("username")
@@ -23,14 +29,14 @@ class SignInView(APIView):
 
         if user is not None:
             login(request, user)
-            return Response(
-                status=status.HTTP_201_CREATED)
+            return Response(status=status.HTTP_201_CREATED)
 
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SignUpView(APIView):
     """Класс для регистрации пользователя"""
+
     def post(self, request: Request) -> Response:
         user_data = json.loads(request.body)
         name = user_data.get("name")
@@ -49,6 +55,7 @@ class SignUpView(APIView):
 
 class SignOutView(APIView):
     """Выход пользователя"""
+
     def post(self, request: Request) -> Response:
         logout(request)
         return Response(status=status.HTTP_200_OK)
@@ -72,8 +79,10 @@ class SignOutView(APIView):
 #         profile.save()  # сохраняем экземпляр в  базу данных
 #         return Response(serialized.data)
 
+
 class ProfileView(APIView):
     """Класс для получения информации о пользователе (get), редактирования информации о пользователе (post)"""
+
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request: Request) -> Response:
@@ -92,15 +101,16 @@ class ProfileView(APIView):
 
 
 class UpdatePasswordView(APIView):
-    """Смена пароля пользователя """
+    """Смена пароля пользователя"""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
         serializer = PasswordUpdateSerializer(data=request.data)
 
         if serializer.is_valid():
-            current_password = serializer.validated_data.get('currentPassword')
-            new_password = serializer.validated_data.get('newPassword')
+            current_password = serializer.validated_data.get("currentPassword")
+            new_password = serializer.validated_data.get("newPassword")
 
             user = request.user
             user.set_password = new_password
@@ -113,6 +123,7 @@ class UpdatePasswordView(APIView):
 
 class UpdateAvatarView(APIView):
     """Смена аватара пользователя"""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
@@ -122,7 +133,10 @@ class UpdateAvatarView(APIView):
             profile_avatar, created = Profile.objects.get_or_create(user=request.user)
             profile_avatar.src = avatar_img
             profile_avatar.save()
-            return Response({"detail": "Аватар успешно обновлен"}, status=status.HTTP_200_OK)
+            return Response(
+                {"detail": "Аватар успешно обновлен"}, status=status.HTTP_200_OK
+            )
         else:
-            return Response({"detail": "Файл аватара не найден"}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(
+                {"detail": "Файл аватара не найден"}, status=status.HTTP_400_BAD_REQUEST
+            )

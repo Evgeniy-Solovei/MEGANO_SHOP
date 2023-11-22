@@ -10,20 +10,32 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ('id', 'order', 'product', 'price', 'quantity')
+        fields = ("id", "order", "product", "price", "quantity")
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    products = OrderItemSerializer(many=True, source='products_in_order')
-    fullName = serializers.CharField(source='profile.fullName', read_only=True)
-    email = serializers.CharField(source='profile.email', read_only=True)
-    phone = serializers.CharField(source='profile.phone', read_only=True)
+    products = OrderItemSerializer(many=True, source="products_in_order")
+    fullName = serializers.CharField(source="profile.fullName", read_only=True)
+    email = serializers.CharField(source="profile.email", read_only=True)
+    phone = serializers.CharField(source="profile.phone", read_only=True)
     totalCost = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ('id', 'createdAt', 'fullName', 'email', 'phone', 'deliveryType', 'paymentType', 'totalCost',
-                  'status', 'city', 'address', 'products')
+        fields = (
+            "id",
+            "createdAt",
+            "fullName",
+            "email",
+            "phone",
+            "deliveryType",
+            "paymentType",
+            "totalCost",
+            "status",
+            "city",
+            "address",
+            "products",
+        )
 
     def get_totalCost(self, obj):
         order_items = obj.products_in_order.all()

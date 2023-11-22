@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0002_sale'),
+        ("catalog", "0002_sale"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='specifications',
-            options={'verbose_name': 'Характеристика товара', 'verbose_name_plural': 'Характеристики товаров'},
+            name="specifications",
+            options={
+                "verbose_name": "Характеристика товара",
+                "verbose_name_plural": "Характеристики товаров",
+            },
         ),
     ]

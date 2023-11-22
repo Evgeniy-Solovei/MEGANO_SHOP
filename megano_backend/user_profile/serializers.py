@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Profile, Avatar
+
+from .models import Avatar, Profile
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -7,7 +8,7 @@ class AvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Avatar
-        fields = 'src', 'alt'
+        fields = "src", "alt"
 
     def get_src(self, obj):
         return obj.src.url
@@ -18,14 +19,13 @@ class ProfileSerializerRead(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = 'fullName', 'email', 'phone', 'avatar'
+        fields = "fullName", "email", "phone", "avatar"
 
 
 class ProfileSerializerWrite(ProfileSerializerRead):
-
     class Meta:
         model = Profile
-        fields = 'fullName', 'email', 'phone'
+        fields = "fullName", "email", "phone"
 
 
 class PasswordUpdateSerializer(serializers.Serializer):
@@ -35,4 +35,3 @@ class PasswordUpdateSerializer(serializers.Serializer):
 
 class AvatarUpdateSerializer(serializers.Serializer):
     avatar = serializers.ImageField(required=True)
-

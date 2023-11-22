@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from catalog.models import Product, Review
-from catalog.serializers import ProductSerializer, CustomProductSerializer
+from catalog.serializers import CustomProductSerializer, ProductSerializer
+
 from .cart import Cart
 
 
@@ -25,7 +27,8 @@ class CartView(APIView):
                     "description": product.description,
                     "freeDelivery": product.freeDelivery,
                     "images": [
-                        {"src": product.image.src.url, "alt": product.image.alt}],
+                        {"src": product.image.src.url, "alt": product.image.alt}
+                    ],
                     "tags": [
                         {"id": tag.id, "name": tag.name} for tag in product.tags.all()
                     ],
@@ -67,4 +70,3 @@ class CartView(APIView):
         cart.remove(product, quantity)
         cart_items = self.get_cart_items(cart)
         return Response(cart_items)
-
