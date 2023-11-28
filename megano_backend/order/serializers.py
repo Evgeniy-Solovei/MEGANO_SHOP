@@ -14,7 +14,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    products = OrderItemSerializer(many=True, source="products_in_order")
+    products = serializers.SerializerMethodField()
     fullName = serializers.CharField(source="profile.fullName", read_only=True)
     email = serializers.CharField(source="profile.email", read_only=True)
     phone = serializers.CharField(source="profile.phone", read_only=True)
@@ -41,3 +41,6 @@ class OrderSerializer(serializers.ModelSerializer):
         order_items = obj.products_in_order.all()
         total_cost = sum(float(item.price) * item.quantity for item in order_items)
         return total_cost
+
+    def get_products(self, obj):
+        return OrderItemSerializer(obj.products_in_order.all(), many=True).data
